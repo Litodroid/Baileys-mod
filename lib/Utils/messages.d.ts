@@ -3,6 +3,7 @@ import { proto } from '../../WAProto';
 import { ILogger } from './logger';
 import { AnyMediaMessageContent, AnyMessageContent, MediaGenerationOptions, MessageContentGenerationOptions, MessageGenerationOptions, MessageGenerationOptionsFromContent, MessageUserReceipt, WAMessage, WAMessageContent, WAProto } from '../Types';
 import { MediaDownloadOptions } from './messages-media';
+
 /**
  * Uses a regex to test whether the string contains a URL, and returns the URL if it does.
  * @param text eg. hello https://google.com
@@ -18,6 +19,75 @@ export declare const prepareDisappearingMessageSettingContent: (ephemeralExpirat
  * @param options.forceForward will show the message as forwarded even if it is from you
  */
 export declare const generateForwardMessageContent: (message: WAMessage, forceForward?: boolean) => proto.IMessage;
+
+// Tipos para mensajes con botones
+type Buttonable = {
+    /** add buttons to the message  */
+    buttons?: proto.Message.ButtonsMessage.IButton[];
+    title?: string;
+    footer?: string;
+    text?: string;
+    caption?: string;
+    contextInfo?: proto.IContextInfo;
+    mentions?: string[];
+};
+
+// Tipos para mensajes con plantillas de botones
+type Templatable = {
+    /** add buttons to the message (conflicts with normal buttons)*/
+    templateButtons?: proto.IHydratedTemplateButton[];
+    footer?: string;
+    text?: string;
+    caption?: string;
+};
+
+// Tipos para mensajes con secciones
+type Listable = {
+    /** Sections of the List */
+    sections?: proto.Message.ListMessage.ISection[];
+    /** Title of a List Message only */
+    title?: string;
+    /** Text of the button on the list (required) */
+    buttonText?: string;
+    /** ListType of a List Message only */
+    listType?: proto.Message.ListMessage.ListType;
+    footerText?: string;
+    description?: string;
+};
+
+// Tipos para mensajes con botones interactivos
+type Interactiveable = {
+    /** add buttons to the message  */
+    interactiveButtons?: proto.Message.InteractiveMessage.NativeFlowMessage.NativeFlowButton[];
+    title?: string;
+    subtitle?: string;
+    media?: boolean;
+    text?: string;
+    caption?: string;
+    footer?: string;
+    contextInfo?: proto.IContextInfo;
+    mentions?: string[];
+};
+
+// Tipos para mensajes de tienda
+type Shopable = {
+    shop?: proto.Message.InteractiveMessage.ShopMessage.Surface;
+    id?: string;
+    title?: string;
+    subtitle?: string;
+    media?: boolean;
+    text?: string;
+    caption?: string;
+    footer?: string;
+    contextInfo?: proto.IContextInfo;
+    mentions?: string[];
+};
+
+// Extender AnyMessageContent para incluir los nuevos tipos
+declare module '../Types' {
+    interface AnyMessageContent extends Buttonable, Templatable, Listable, Interactiveable, Shopable {}
+}
+
 export declare const generateWAMessageContent: (message: AnyMessageContent, options: MessageContentGenerationOptions) => Promise<proto.Message>;
 export declare const generateWAMessageFromContent: (jid: string, message: WAMessageContent, options: MessageGenerationOptionsFromContent) => proto.WebMessageInfo;
 export declare const generateWAMessage: (jid: string, content: AnyMessageContent, options: MessageGenerationOptions) => Promise<proto.WebMessageInfo>;
